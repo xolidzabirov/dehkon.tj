@@ -12,7 +12,7 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer className="bg-white dark:bg-gray-900 py-12 footer">
+    <footer className="dark:bg-gray-900 pt-10">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-start justify-between gap-8 md:gap-16">
           
@@ -32,7 +32,7 @@ const Footer = () => {
               />
             </div>
             <p className="text-gray-500 dark:text-gray-400 mt-4">
-              Ваш надежный источник свежих продуктов.
+              Манбаи боэътимоди шумо барои маҳсулоти тару тоза.
             </p>
           </div>
 
@@ -43,19 +43,19 @@ const Footer = () => {
                 Дар бораи мо
               </h3>
               <ul className="space-y-4">
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Our Story</a></li>
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Team</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Қиссаи мо</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Дастаи мо</a></li>
               </ul>
             </div>
 
             {/* Поддержка */}
             <div>
               <h3 className="text-black dark:text-white font-semibold text-lg mb-6">
-                Поддержка
+                Дастгирӣ
               </h3>
               <ul className="space-y-4">
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">FAQ</a></li>
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Contact Us</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Саволҳои маъмул</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Бо мо тамос гиред</a></li>
               </ul>
             </div>
 
@@ -65,12 +65,12 @@ const Footer = () => {
                 Юридическая информация
               </h3>
               <ul className="space-y-4 mb-8">
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Сиёсати махфият</a></li>
+                <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Шартҳои истифода</a></li>
               </ul>
               <div>
                 <h4 className="text-black dark:text-white font-semibold mb-4">
-                  Следуйте за нами
+                  Моро пайгирӣ кунед
                 </h4>
                 {/* Добавьте здесь иконки соцсетей */}
               </div>
@@ -83,7 +83,7 @@ const Footer = () => {
 
         {/* Копирайт */}
         <div className="text-center text-gray-500 dark:text-gray-400">
-          <p>&copy; {new Date().getFullYear()} dekhon.tj. Все права защищены.</p>
+          <p>&copy; {new Date().getFullYear()} dekhon.tj. Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p>
         </div>
       </div>
     </footer>
