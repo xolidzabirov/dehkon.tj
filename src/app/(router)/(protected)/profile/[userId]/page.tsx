@@ -5,7 +5,7 @@ import React from 'react'
 
 const ProfileUserById = () => {
     const params = useParams()
-    const userId = params.id
+    const userId = params.userId 
 
   return (
     <div>

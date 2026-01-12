@@ -43,7 +43,7 @@ const Header = () => {
   }
   }, [])
   return (
-    <header className="flex items-center justify-center gap-[30px] h-20 mb-10 shadow-xl ">
+    <header className="flex items-center justify-center gap-[30px] h-20 mb-5 shadow-xl ">
       <Image
         src={
           theme === 'dark'
@@ -65,7 +65,7 @@ const Header = () => {
         <Link href={'/aboutUs'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Дар бораи мо</p></Link>
         <Link href={'/profile'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Профил</p></Link>
         <Select defaultValue='тоҷ'>
-      <SelectTrigger className="w-[80px] rounded-[13px]">
+      <SelectTrigger className="w-20 rounded-[13px]">
         <SelectValue placeholder="тоҷ" />
       </SelectTrigger>
       <SelectContent>
