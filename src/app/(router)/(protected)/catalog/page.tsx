@@ -1,5 +1,5 @@
 "use client"
-import Card from '@/app/components/Card'
+import Card from '@/widgets/card'
 import React from 'react'
 
 const Products = () => {

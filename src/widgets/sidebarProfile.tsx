@@ -14,9 +14,6 @@ import {
   Plus,
   LogOut,
 } from "lucide-react";
-import { url } from 'inspector';
-import Link from 'next/link';
-import { ThemeToggle } from './theme-toggle';
 import {
   Select,
   SelectContent,
@@ -25,13 +22,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ThemeToggle } from './theme-toggle';
+import { useEffect, useState } from 'react';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
-const sidebarProfile = () => {
+const SidebarProfile = () => {
   const user = ""
   const router = useRouter()
+  const pathname = usePathname()
+  const params = useParams()
+  console.log("Params:", params);
+  
+  const id = params?.id as string || ''
+  console.log("userId:", id)
+
   const [lang, setLang] = useState("тоҷ");
+  const [mounted, setMounted] = useState(false)
+  
+  // ✅ Решение проблемы гидратации
+  useEffect(() => {
+    setMounted(true)
+  }, []) 
+
   const Logout = () => {
       router.push("/login")
   }
@@ -45,7 +58,7 @@ const sidebarProfile = () => {
     {
       id: "products",
       name: "Молҳои ман",
-      url: "/",
+      url: id ? `/${id}/products` : "/profile/products",
       icon: Package
     }, 
     {
@@ -92,6 +105,10 @@ const sidebarProfile = () => {
     }
   ]
 
+  const isActive = (url: string) => {
+    return pathname === url;
+  }
+
   return (
     <div className=''>
       {
@@ -117,7 +134,12 @@ const sidebarProfile = () => {
         <div className="m-[25px_10px]">
           {
             sallerMenuItems.map(item => (
-                <Link key={item.id} href={item.url} className='flex items-center gap-5 my-1 w-58 p-[8px_12px] border'>
+                <Link key={item.id} href={item.url} className={`flex items-center gap-5 my-1 w-58 p-[8px_12px] rounded-lg transition-colors ${
+              isActive(item.url) 
+                ? 'bg-blue-50 border-blue-200 text-blue-600' 
+                : 'hover:bg-gray-50'
+            }`}
+          >
                  <item.icon  size={18} />
                  <span>{item.name}</span>
                 </Link>
@@ -158,4 +180,4 @@ const sidebarProfile = () => {
     </div>
   )
 }
-export default sidebarProfile
+export default SidebarProfile

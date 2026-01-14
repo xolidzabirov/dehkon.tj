@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select"
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 type User = {
@@ -63,7 +63,7 @@ const Header = () => {
         <Link href={'/'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Асоси</p></Link>
         <Link href={'/catalog'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Каталог</p></Link>
         <Link href={'/aboutUs'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Дар бораи мо</p></Link>
-        <Link href={'/profile'}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Профил</p></Link>
+        <Link href={`/profile/2008`}><p className='text-gray-700 font-semibold hover:text-green-600 transition-colors'>Профил</p></Link>
         <Select defaultValue='тоҷ'>
       <SelectTrigger className="w-20 rounded-[13px]">
         <SelectValue placeholder="тоҷ" />
