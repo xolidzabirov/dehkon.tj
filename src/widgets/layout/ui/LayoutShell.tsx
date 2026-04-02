@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
 
-const noShellRoutes = ['/auth', '/admin'];
+const noShellRoutes = ['/auth', '/dashboard', '/admin'];
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
