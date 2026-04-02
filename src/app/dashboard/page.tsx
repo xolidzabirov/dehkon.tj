@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -17,20 +17,26 @@ import {
   Phone,
   Calendar,
   Shield,
-} from 'lucide-react';
-import { useTranslation } from '@/features/i18n';
-import { useAppSelector } from '@/shared/store/hooks';
-import { orderService } from '@/entities/order';
-import { Button, Skeleton, Badge } from '@/shared/ui';
-import type { Order } from '@/entities/order';
+} from "lucide-react";
+import { useTranslation } from "@/features/i18n";
+import { useAppSelector } from "@/shared/store/hooks";
+import { orderService } from "@/entities/order";
+import { Button, Skeleton, Badge } from "@/shared/ui";
+import type { Order } from "@/entities/order";
 
-const ORDER_STATUS_MAP: Record<number, { key: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' | 'warning' }> = {
-  0: { key: 'statusPending', variant: 'warning' },
-  1: { key: 'statusConfirmed', variant: 'default' },
-  2: { key: 'statusPreparing', variant: 'secondary' },
-  3: { key: 'statusShipped', variant: 'outline' },
-  4: { key: 'statusDelivered', variant: 'default' },
-  5: { key: 'statusCancelled', variant: 'destructive' },
+const ORDER_STATUS_MAP: Record<
+  number,
+  {
+    key: string;
+    variant: "default" | "secondary" | "outline" | "destructive" | "warning";
+  }
+> = {
+  0: { key: "statusPending", variant: "warning" },
+  1: { key: "statusConfirmed", variant: "default" },
+  2: { key: "statusPreparing", variant: "secondary" },
+  3: { key: "statusShipped", variant: "outline" },
+  4: { key: "statusDelivered", variant: "default" },
+  5: { key: "statusCancelled", variant: "destructive" },
 };
 
 export default function DashboardPage() {
@@ -58,13 +64,16 @@ export default function DashboardPage() {
   const fadeUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.4, ease: 'easeOut' as const },
+    transition: { duration: 0.4, ease: "easeOut" as const },
   };
 
-  if (!isAuthenticated) {
-    router.push('/auth');
-    return null;
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/auth");
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) return null;
 
   if (isLoading) {
     return (
@@ -93,9 +102,9 @@ export default function DashboardPage() {
 
   const stats = [
     { icon: ShoppingBag, label: t.dashboard.totalOrders, value: totalOrders },
-    { icon: Package, label: t.dashboard.totalProducts, value: '—' },
-    { icon: TrendingUp, label: t.dashboard.revenue, value: '—' },
-    { icon: LayoutDashboard, label: t.dashboard.totalSales, value: '—' },
+    { icon: Package, label: t.dashboard.totalProducts, value: "—" },
+    { icon: TrendingUp, label: t.dashboard.revenue, value: "—" },
+    { icon: LayoutDashboard, label: t.dashboard.totalSales, value: "—" },
   ];
 
   return (
@@ -106,14 +115,16 @@ export default function DashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-surface-900 dark:text-surface-100">
             {t.dashboard.welcome}, {user?.fullName || user?.userName}!
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 mt-1">{t.dashboard.title}</p>
+          <p className="text-surface-500 dark:text-surface-400 mt-1">
+            {t.dashboard.title}
+          </p>
         </motion.div>
 
         {/* Quick Stats */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' as const }}
+          transition={{ duration: 0.3, ease: "easeOut" as const }}
           className="mb-8"
         >
           <h2 className="font-semibold text-surface-900 dark:text-surface-100 mb-4">
@@ -125,7 +136,11 @@ export default function DashboardPage() {
                 key={stat.label}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.3, ease: 'easeOut' as const }}
+                transition={{
+                  delay: i * 0.05,
+                  duration: 0.3,
+                  ease: "easeOut" as const,
+                }}
                 className="glass-card rounded-2xl p-5"
               >
                 <div className="flex items-center gap-3">
@@ -133,8 +148,12 @@ export default function DashboardPage() {
                     <stat.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-surface-500 dark:text-surface-400">{stat.label}</p>
-                    <p className="text-xl font-bold text-surface-900 dark:text-surface-100">{stat.value}</p>
+                    <p className="text-sm text-surface-500 dark:text-surface-400">
+                      {stat.label}
+                    </p>
+                    <p className="text-xl font-bold text-surface-900 dark:text-surface-100">
+                      {stat.value}
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -147,7 +166,7 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.3, ease: 'easeOut' as const }}
+            transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" as const }}
             className="lg:col-span-2"
           >
             <div className="glass-card rounded-2xl p-6">
@@ -164,7 +183,9 @@ export default function DashboardPage() {
               </div>
 
               {recentOrders.length === 0 ? (
-                <p className="text-center text-surface-400 py-8">{t.orders.empty}</p>
+                <p className="text-center text-surface-400 py-8">
+                  {t.orders.empty}
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -213,7 +234,11 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15, duration: 0.3, ease: 'easeOut' as const }}
+            transition={{
+              delay: 0.15,
+              duration: 0.3,
+              ease: "easeOut" as const,
+            }}
           >
             <div className="glass-card rounded-2xl p-6 sticky top-24">
               <div className="flex items-center justify-between mb-6">
@@ -234,7 +259,9 @@ export default function DashboardPage() {
                 <h3 className="font-semibold text-surface-900 dark:text-surface-100">
                   {user?.fullName}
                 </h3>
-                <p className="text-sm text-surface-500 dark:text-surface-400">@{user?.userName}</p>
+                <p className="text-sm text-surface-500 dark:text-surface-400">
+                  @{user?.userName}
+                </p>
               </div>
 
               <div className="space-y-3 text-sm">
@@ -248,12 +275,17 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3 text-surface-600 dark:text-surface-400">
                   <Shield className="h-4 w-4 shrink-0" />
-                  <span>{t.dashboard.roleName}: {user?.roleName}</span>
+                  <span>
+                    {t.dashboard.roleName}: {user?.roleName}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-surface-600 dark:text-surface-400">
                   <Calendar className="h-4 w-4 shrink-0" />
                   <span>
-                    {t.dashboard.memberSince}: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
+                    {t.dashboard.memberSince}:{" "}
+                    {user?.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString()
+                      : "—"}
                   </span>
                 </div>
               </div>
