@@ -1,28 +1,38 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  User, Lock, Bell, Trash2, Camera, Eye, EyeOff,
-  Check, AlertTriangle, ChevronRight, LogOut, Upload,
-} from 'lucide-react';
-import { useTranslation } from '@/features/i18n';
-import { Skeleton } from '@/shared/ui/Skeleton';
-import { userService } from '@/entities/user';
-import { authApi } from '@/shared/api/auth';
-import type { User as UserType } from '@/entities/user';
+  User,
+  Lock,
+  Bell,
+  Trash2,
+  Camera,
+  Eye,
+  EyeOff,
+  Check,
+  AlertTriangle,
+  ChevronRight,
+  LogOut,
+  Upload,
+} from "lucide-react";
+import { useTranslation } from "@/features/i18n";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { userService } from "@/entities/user";
+import { authApi } from "@/shared/api/auth";
+import type { User as UserType } from "@/entities/user";
 
 /* ─────────────────────────────────────────────────────
    TYPES
 ───────────────────────────────────────────────────── */
 type NavItem = {
-  id: 'profile' | 'security' | 'notifications' | 'danger';
+  id: "profile" | "security" | "notifications" | "danger";
   label: string;
   icon: React.ElementType;
   danger?: boolean;
 };
-type NavId = NavItem['id'];
+type NavId = NavItem["id"];
 
 /* ─────────────────────────────────────────────────────
    ATOMS
@@ -30,7 +40,7 @@ type NavId = NavItem['id'];
 function Field({
   label,
   name,
-  type = 'text',
+  type = "text",
   value,
   onChange,
   hint,
@@ -45,7 +55,7 @@ function Field({
   disabled?: boolean;
 }) {
   const [show, setShow] = useState(false);
-  const isPw = type === 'password';
+  const isPw = type === "password";
   return (
     <div className="space-y-1.5">
       <label className="block text-sm font-medium text-[#1a1a1a] dark:text-white">
@@ -54,32 +64,38 @@ function Field({
       <div className="relative">
         <input
           name={name}
-          type={isPw && !show ? 'password' : 'text'}
+          type={isPw && !show ? "password" : "text"}
           value={value}
           disabled={disabled}
-          onChange={e => onChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           className={[
-            'w-full rounded-xl border bg-white dark:bg-[#1c1c1c] px-4 py-2.5 text-sm',
-            'text-[#1a1a1a] dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30',
-            'outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all duration-150',
+            "w-full rounded-xl border bg-white dark:bg-[#1c1c1c] px-4 py-2.5 text-sm",
+            "text-[#1a1a1a] dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30",
+            "outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all duration-150",
             disabled
-              ? 'opacity-50 cursor-not-allowed border-black/[0.08] dark:border-white/[0.06]'
-              : 'border-black/[0.1] dark:border-white/[0.08] hover:border-black/20 dark:hover:border-white/15',
-            isPw ? 'pr-10' : '',
-          ].join(' ')}
+              ? "opacity-50 cursor-not-allowed border-black/[0.08] dark:border-white/[0.06]"
+              : "border-black/[0.1] dark:border-white/[0.08] hover:border-black/20 dark:hover:border-white/15",
+            isPw ? "pr-10" : "",
+          ].join(" ")}
         />
         {isPw && (
           <button
             type="button"
             tabIndex={-1}
-            onClick={() => setShow(s => !s)}
+            onClick={() => setShow((s) => !s)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 transition-colors"
           >
-            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {show ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
           </button>
         )}
       </div>
-      {hint && <p className="text-xs text-black/40 dark:text-white/40">{hint}</p>}
+      {hint && (
+        <p className="text-xs text-black/40 dark:text-white/40">{hint}</p>
+      )}
     </div>
   );
 }
@@ -90,7 +106,7 @@ function Toast({
   onClose,
 }: {
   message: string;
-  type: 'success' | 'error';
+  type: "success" | "error";
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -103,13 +119,17 @@ function Toast({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 16 }}
       className={[
-        'fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-3.5 shadow-2xl text-sm font-medium',
-        type === 'success' ? 'bg-[#0d1f14] text-green-300' : 'bg-red-950 text-red-300',
-      ].join(' ')}
+        "fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-3.5 shadow-2xl text-sm font-medium",
+        type === "success"
+          ? "bg-[#0d1f14] text-green-300"
+          : "bg-red-950 text-red-300",
+      ].join(" ")}
     >
-      {type === 'success'
-        ? <Check className="h-4 w-4" />
-        : <AlertTriangle className="h-4 w-4" />}
+      {type === "success" ? (
+        <Check className="h-4 w-4" />
+      ) : (
+        <AlertTriangle className="h-4 w-4" />
+      )}
       {message}
     </motion.div>
   );
@@ -129,15 +149,15 @@ function Toggle({
       aria-checked={value}
       onClick={() => onChange(!value)}
       className={[
-        'relative h-6 w-11 rounded-full transition-colors duration-200',
-        value ? 'bg-primary-500' : 'bg-black/10 dark:bg-white/10',
-      ].join(' ')}
+        "relative h-6 w-11 rounded-full transition-colors duration-200",
+        value ? "bg-primary-500" : "bg-black/10 dark:bg-white/10",
+      ].join(" ")}
     >
       <span
         className={[
-          'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200',
-          value ? 'translate-x-5' : 'translate-x-0',
-        ].join(' ')}
+          "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200",
+          value ? "translate-x-5" : "translate-x-0",
+        ].join(" ")}
       />
     </button>
   );
@@ -153,7 +173,7 @@ function SaveBtn({
   loading,
   disabled,
   onClick,
-  label = 'Сохранить',
+  label = "Сохранить",
 }: {
   loading: boolean;
   disabled?: boolean;
@@ -177,10 +197,10 @@ function SaveBtn({
    NAV CONFIG — явный тип вместо `as const`
 ───────────────────────────────────────────────────── */
 const NAV: NavItem[] = [
-  { id: 'profile',       label: 'Профиль',      icon: User },
-  { id: 'security',      label: 'Безопасность', icon: Lock },
-  { id: 'notifications', label: 'Уведомления',  icon: Bell },
-  { id: 'danger',        label: 'Опасная зона', icon: Trash2, danger: true },
+  { id: "profile", label: "Профиль", icon: User },
+  { id: "security", label: "Безопасность", icon: Lock },
+  { id: "notifications", label: "Уведомления", icon: Bell },
+  { id: "danger", label: "Опасная зона", icon: Trash2, danger: true },
 ];
 
 /* ─────────────────────────────────────────────────────
@@ -191,40 +211,44 @@ export default function SettingsPage() {
   const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [user,      setUser]      = useState<UserType | null>(null);
-  const [loading,   setLoading]   = useState(true);
-  const [saving,    setSaving]    = useState(false);
-  const [section,   setSection]   = useState<NavId>('profile');
-  const [toast,     setToast]     = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [section, setSection] = useState<NavId>("profile");
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   /* profile */
-  const [userName,   setUserName]   = useState('');
-  const [phone,      setPhone]      = useState('');
+  const [userName, setUserName] = useState("");
+  const [phone, setPhone] = useState("");
   const [avatarPrev, setAvatarPrev] = useState<string | null>(null);
 
   /* password */
-  const [oldPw,     setOldPw]     = useState('');
-  const [newPw,     setNewPw]     = useState('');
-  const [confirmPw, setConfirmPw] = useState('');
+  const [oldPw, setOldPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
 
   /* notifications (local — extend via API if needed) */
   const [notifOrder, setNotifOrder] = useState(true);
   const [notifPromo, setNotifPromo] = useState(false);
-  const [notifChat,  setNotifChat]  = useState(true);
+  const [notifChat, setNotifChat] = useState(true);
 
   /* ── load user ── */
   useEffect(() => {
-    userService.getMe()
-      .then(u => {
+    userService
+      .getMe()
+      .then((u) => {
         setUser(u);
-        setUserName(u.userName ?? '');
-        setPhone(u.phoneNumber ?? '');
+        setUserName(u.userName ?? "");
+        setPhone(u.phoneNumber ?? "");
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const fire = (message: string, type: 'success' | 'error') =>
+  const fire = (message: string, type: "success" | "error") =>
     setToast({ message, type });
 
   /* ── save profile ── */
@@ -236,9 +260,9 @@ export default function SettingsPage() {
         userName,
         phoneNumber: phone,
       });
-      fire('Профиль обновлён', 'success');
+      fire("Профиль обновлён", "success");
     } catch {
-      fire('Ошибка при сохранении', 'error');
+      fire("Ошибка при сохранении", "error");
     } finally {
       setSaving(false);
     }
@@ -246,15 +270,23 @@ export default function SettingsPage() {
 
   /* ── change password ── */
   const changePw = async () => {
-    if (newPw !== confirmPw) { fire('Пароли не совпадают', 'error'); return; }
-    if (newPw.length < 6)   { fire('Минимум 6 символов',   'error'); return; }
+    if (newPw !== confirmPw) {
+      fire("Пароли не совпадают", "error");
+      return;
+    }
+    if (newPw.length < 6) {
+      fire("Минимум 6 символов", "error");
+      return;
+    }
     setSaving(true);
     try {
       await authApi.changePassword({ oldPassword: oldPw, newPassword: newPw });
-      setOldPw(''); setNewPw(''); setConfirmPw('');
-      fire('Пароль изменён', 'success');
+      setOldPw("");
+      setNewPw("");
+      setConfirmPw("");
+      fire("Пароль изменён", "success");
     } catch {
-      fire('Неверный текущий пароль', 'error');
+      fire("Неверный текущий пароль", "error");
     } finally {
       setSaving(false);
     }
@@ -262,19 +294,19 @@ export default function SettingsPage() {
 
   /* ── delete account ── */
   const deleteAccount = async () => {
-    if (!window.confirm('Вы уверены? Это нельзя отменить.')) return;
+    if (!window.confirm("Вы уверены? Это нельзя отменить.")) return;
     try {
       await authApi.deleteMe();
-      window.location.href = '/';
+      window.location.href = "/";
     } catch {
-      fire('Ошибка при удалении', 'error');
+      fire("Ошибка при удалении", "error");
     }
   };
 
   /* ── logout ── */
   const handleLogout = () => {
     authApi.logout();
-    window.location.href = '/auth';
+    window.location.href = "/auth";
   };
 
   /* ── avatar preview ── */
@@ -288,29 +320,56 @@ export default function SettingsPage() {
 
   /* ── password strength ── */
   const pwStrength =
-    newPw.length >= 12 ? 4 :
-    newPw.length >= 10 ? 3 :
-    newPw.length >= 8  ? 2 :
-    newPw.length >= 1  ? 1 : 0;
+    newPw.length >= 12
+      ? 4
+      : newPw.length >= 10
+        ? 3
+        : newPw.length >= 8
+          ? 2
+          : newPw.length >= 1
+            ? 1
+            : 0;
 
-  const strengthColor = ['', 'bg-red-500', 'bg-amber-500', 'bg-yellow-400', 'bg-green-500'][pwStrength];
-  const strengthLabel = ['', 'Слабый', 'Средний', 'Хороший', 'Отличный'][pwStrength];
+  const strengthColor = [
+    "",
+    "bg-red-500",
+    "bg-amber-500",
+    "bg-yellow-400",
+    "bg-green-500",
+  ][pwStrength];
+  const strengthLabel = ["", "Слабый", "Средний", "Хороший", "Отличный"][
+    pwStrength
+  ];
 
   /* ── loading skeleton ── */
-  if (loading) return (
-    <div className="min-h-screen bg-[#f8f7f4] dark:bg-[#0f0f0f]">
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <Skeleton className="h-7 w-32 mb-8" />
-        <div className="flex gap-6">
-          <Skeleton className="h-64 w-56 rounded-2xl" />
-          <Skeleton className="flex-1 h-64 rounded-2xl" />
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#f8f7f4] dark:bg-[#0f0f0f]">
+        <div className="mx-auto max-w-5xl px-6 py-10">
+          <Skeleton className="h-7 w-32 mb-8" />
+          <div className="flex gap-6">
+            <Skeleton className="h-64 w-56 rounded-2xl" />
+            <Skeleton className="flex-1 h-64 rounded-2xl" />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 
-  const avatarSrc = avatarPrev ?? user?.profilePhotoUrl ?? null;
-  const displayName = user?.userName ?? 'Пользователь';
+  // utils/getImageUrl.ts (или в shared/lib)
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+  function getImageUrl(path: string | null | undefined): string | null {
+    if (!path) return null;
+    // Уже абсолютный URL — возвращаем как есть
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    // Уже относительный путь — добавляем только base
+    if (path.startsWith("/")) return `${API_BASE}${path}`;
+    // Голое имя файла — собираем полный путь
+    return `${API_BASE}/uploads/${path}`;
+  }
+
+  const avatarSrc = getImageUrl(user?.profilePhotoUrl);
+  const displayName = user?.userName ?? "Пользователь";
 
   return (
     <div className="min-h-screen bg-[#f8f7f4] dark:bg-[#0f0f0f]">
@@ -327,18 +386,18 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-5xl px-6 py-10">
         {/* header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#1a1a1a] dark:text-white">Настройки</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a1a] dark:text-white">
+            Настройки
+          </h1>
           <p className="mt-1 text-sm text-black/45 dark:text-white/45">
             Управляйте своим профилем и предпочтениями
           </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-
           {/* ══ SIDEBAR ══ */}
           <nav className="lg:w-56 shrink-0">
             <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden">
-
               {/* user mini card */}
               <div className="p-4 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl overflow-hidden bg-primary-100 dark:bg-primary-500/10 flex items-center justify-center text-sm font-bold text-primary-600 dark:text-primary-400 shrink-0">
@@ -372,15 +431,15 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => setSection(id)}
                     className={[
-                      'w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                      "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       section === id
                         ? danger
-                          ? 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400'
-                          : 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300'
+                          ? "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
+                          : "bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300"
                         : danger
-                          ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10'
-                          : 'text-black/55 dark:text-white/55 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-[#1a1a1a] dark:hover:text-white',
-                    ].join(' ')}
+                          ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                          : "text-black/55 dark:text-white/55 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-[#1a1a1a] dark:hover:text-white",
+                    ].join(" ")}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 text-left">{label}</span>
@@ -409,9 +468,8 @@ export default function SettingsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
-
               {/* ── PROFILE ── */}
-              {section === 'profile' && (
+              {section === "profile" && (
                 <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-6">
                   <h2 className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-6">
                     Личные данные
@@ -457,7 +515,9 @@ export default function SettingsPage() {
                         <Upload className="h-4 w-4" />
                         Загрузить фото
                       </button>
-                      <p className="mt-1.5 text-xs text-black/35 dark:text-white/35">JPG, PNG до 5 МБ</p>
+                      <p className="mt-1.5 text-xs text-black/35 dark:text-white/35">
+                        JPG, PNG до 5 МБ
+                      </p>
                     </div>
                   </div>
 
@@ -472,7 +532,7 @@ export default function SettingsPage() {
                     <Field
                       label="Email"
                       name="email"
-                      value={user?.email ?? ''}
+                      value={user?.email ?? ""}
                       onChange={() => {}}
                       disabled
                       hint="Email нельзя изменить"
@@ -491,10 +551,15 @@ export default function SettingsPage() {
                       </label>
                       <div className="w-full rounded-xl border border-black/[0.08] dark:border-white/[0.06] bg-white dark:bg-[#1c1c1c] px-4 py-2.5 text-sm text-black/40 dark:text-white/40 opacity-60 cursor-not-allowed">
                         {user?.createdAt
-                          ? new Date(user.createdAt).toLocaleDateString('ru-RU', {
-                              day: 'numeric', month: 'long', year: 'numeric',
-                            })
-                          : '—'}
+                          ? new Date(user.createdAt).toLocaleDateString(
+                              "ru-RU",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              },
+                            )
+                          : "—"}
                       </div>
                     </div>
                   </div>
@@ -506,7 +571,7 @@ export default function SettingsPage() {
               )}
 
               {/* ── SECURITY ── */}
-              {section === 'security' && (
+              {section === "security" && (
                 <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-6">
                   <h2 className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-1">
                     Безопасность
@@ -542,21 +607,25 @@ export default function SettingsPage() {
                     {/* strength meter */}
                     {newPw.length > 0 && (
                       <div className="space-y-1.5">
-                        <p className="text-xs text-black/40 dark:text-white/40">Надёжность пароля</p>
+                        <p className="text-xs text-black/40 dark:text-white/40">
+                          Надёжность пароля
+                        </p>
                         <div className="flex gap-1">
-                          {[1, 2, 3, 4].map(i => (
+                          {[1, 2, 3, 4].map((i) => (
                             <div
                               key={i}
                               className={[
-                                'h-1 flex-1 rounded-full transition-all duration-300',
+                                "h-1 flex-1 rounded-full transition-all duration-300",
                                 i <= pwStrength
                                   ? strengthColor
-                                  : 'bg-black/[0.06] dark:bg-white/[0.06]',
-                              ].join(' ')}
+                                  : "bg-black/[0.06] dark:bg-white/[0.06]",
+                              ].join(" ")}
                             />
                           ))}
                         </div>
-                        <p className="text-xs text-black/35 dark:text-white/35">{strengthLabel}</p>
+                        <p className="text-xs text-black/35 dark:text-white/35">
+                          {strengthLabel}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -573,7 +642,7 @@ export default function SettingsPage() {
               )}
 
               {/* ── NOTIFICATIONS ── */}
-              {section === 'notifications' && (
+              {section === "notifications" && (
                 <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-6">
                   <h2 className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-6">
                     Уведомления
@@ -581,20 +650,20 @@ export default function SettingsPage() {
                   <div className="space-y-3">
                     {[
                       {
-                        label: 'Статус заказов',
-                        desc: 'Изменение статуса ваших заказов',
+                        label: "Статус заказов",
+                        desc: "Изменение статуса ваших заказов",
                         value: notifOrder,
                         set: setNotifOrder,
                       },
                       {
-                        label: 'Акции и скидки',
-                        desc: 'Промо-рассылки и спецпредложения',
+                        label: "Акции и скидки",
+                        desc: "Промо-рассылки и спецпредложения",
                         value: notifPromo,
                         set: setNotifPromo,
                       },
                       {
-                        label: 'Новые сообщения',
-                        desc: 'Уведомления из чатов',
+                        label: "Новые сообщения",
+                        desc: "Уведомления из чатов",
                         value: notifChat,
                         set: setNotifChat,
                       },
@@ -604,24 +673,30 @@ export default function SettingsPage() {
                         className="flex items-center justify-between rounded-xl border border-black/[0.06] dark:border-white/[0.06] p-4"
                       >
                         <div>
-                          <p className="text-sm font-medium text-[#1a1a1a] dark:text-white">{label}</p>
-                          <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">{desc}</p>
+                          <p className="text-sm font-medium text-[#1a1a1a] dark:text-white">
+                            {label}
+                          </p>
+                          <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">
+                            {desc}
+                          </p>
                         </div>
-                        <Toggle value={value} onChange={v => set(v)} />
+                        <Toggle value={value} onChange={(v) => set(v)} />
                       </div>
                     ))}
                   </div>
                   <div className="mt-6 flex justify-end">
                     <SaveBtn
                       loading={false}
-                      onClick={() => fire('Настройки уведомлений сохранены', 'success')}
+                      onClick={() =>
+                        fire("Настройки уведомлений сохранены", "success")
+                      }
                     />
                   </div>
                 </div>
               )}
 
               {/* ── DANGER ZONE ── */}
-              {section === 'danger' && (
+              {section === "danger" && (
                 <div className="rounded-2xl bg-white dark:bg-[#141414] border border-red-200 dark:border-red-500/20 p-6">
                   <h2 className="text-base font-semibold text-red-600 dark:text-red-400 mb-1">
                     Опасная зона
@@ -655,7 +730,8 @@ export default function SettingsPage() {
                           Удалить аккаунт
                         </p>
                         <p className="text-xs text-red-600/60 dark:text-red-400/60 mt-0.5">
-                          Все данные, заказы и история будут безвозвратно удалены
+                          Все данные, заказы и история будут безвозвратно
+                          удалены
                         </p>
                       </div>
                       <button
@@ -669,7 +745,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
-
             </motion.div>
           </div>
         </div>
