@@ -34,9 +34,13 @@ const roleOptions = [
   { value: 'Courier', key: 'roleCourier' as const, icon: Truck },
 ];
 
+// if (process.env.NODE_ENV === 'production') {
+//   // регистрация service worker
+// }
+
 export default function AuthPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Загрузка...</div>}>
       <AuthContent />
     </Suspense>
   );
@@ -149,7 +153,7 @@ function AuthContent() {
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
               <Leaf className="h-7 w-7 text-white" />
             </div>
-            <span className="text-2xl font-bold">Dehkon.tj</span>
+            <span className="text-2xl font-bold">Dehqon.tj</span>
           </div>
           <h1 className="text-4xl font-bold mb-4">
             {isRegister ? t.auth.welcomeNew : t.auth.welcomeBack}
@@ -170,7 +174,7 @@ function AuthContent() {
             </div>
           ))}
         </div>
-        <p className="relative z-10 text-sm text-white/50">© 2024 Dehkon.tj</p>
+        <p className="relative z-10 text-sm text-white/50">© 2026 Dehqon.tj</p>
       </div>
 
       {/* Right panel — form */}
@@ -181,7 +185,7 @@ function AuthContent() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500">
               <Leaf className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-surface-900 dark:text-surface-100">Dehkon.tj</span>
+            <span className="text-xl font-bold text-surface-900 dark:text-surface-100">Dehqon.tj</span>
           </div>
 
           <AnimatePresence mode="wait">

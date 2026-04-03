@@ -12,7 +12,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <span className="text-2xl font-bold gradient-text">Dehkon.tj</span>
+            <span className="text-2xl font-bold gradient-text">Dehqon.tj</span>
             <p className="mt-3 text-sm text-surface-400">{t.footer.description}</p>
           </div>
 

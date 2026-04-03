@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Providers } from '@/shared/providers';
 import { LayoutShell } from '@/widgets/layout';
 import './globals.css';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Dehqon.tj — Маркетплейс свежих продуктов Таджикистана',
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <LayoutShell>{children}</LayoutShell>
         </Providers>
-        <script
+        <Script
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {

@@ -345,7 +345,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-surface-200 bg-white/90 backdrop-blur-md dark:border-surface-700 dark:bg-surface-950/90">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="shrink-0">
-          <span className="text-2xl font-bold gradient-text">Dehkon.tj</span>
+          <span className="text-2xl font-bold gradient-text">Dehqon.tj</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -361,7 +361,30 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-1.5 lg:flex">
-          <LocaleDropdown locale={locale} setLocale={setLocale} />
+          <div className="glass-card flex items-center gap-1 rounded-xl p-1 shadow-sm border border-surface-200/70 dark:border-surface-700/70">
+            {LOCALES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLocale(l.code)}
+                type="button"
+                title={l.label}
+                className={cn(
+                  "group flex items-center gap-2.5 rounded-xl p-2 text-sm font-medium transition-all duration-300 outline-none",
+                  "hover:bg-surface-100 dark:hover:bg-surface-800 active:scale-95",
+
+                  locale === l.code
+                    ? "bg-primary-500 text-white shadow-sm"
+                    : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white",
+                )}
+              >
+                <img
+                  src={l.flag}
+                  alt={l.label}
+                  className="w-6 h-4 rounded object-cover transition-transform group-hover:scale-110"
+                />
+              </button>
+            ))}
+          </div>
 
           <button
             onClick={toggleTheme}

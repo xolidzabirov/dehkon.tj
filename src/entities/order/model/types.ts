@@ -1,7 +1,9 @@
 import type { PaginationParams } from '@/shared/types';
 
+export type OrderStatus = "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+
 export interface Order {
-  id: number;
+  id: number;   
   buyerId: number;
   buyerName: string;
   sellerId: number;
@@ -9,7 +11,8 @@ export interface Order {
   courierId?: number | null;
   courierName?: string | null;
   deliveryAddress: string;
-  status: number;
+  status: OrderStatus;
+  totalAmount: number; 
   totalPrice: number;
   items: OrderItem[];
   createdAt: string;

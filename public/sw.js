@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dehkon-v2';
+const CACHE_NAME = 'dehqon-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

@@ -1,426 +1,525 @@
-// src/app/profile/page.tsx
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import {
-  BadgeCheck,
-  CalendarDays,
-  ChevronRight,
-  Clock3,
-  CreditCard,
-  Heart,
-  Mail,
   MapPin,
   Package,
-  Phone,
-  Settings,
-  Shield,
-  ShoppingBag,
   Star,
+  MessageSquare,
+  ShoppingBag,
+  Edit3,
+  ChevronRight,
+  Clock,
+  CheckCircle,
   Truck,
-  User2,
-} from 'lucide-react';
+  XCircle,
+  ArrowUpRight,
+} from "lucide-react";
+import { useTranslation } from "@/features/i18n";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { userService } from "@/entities/user";
+import { orderService } from "@/entities/order";
+import { reviewService } from "@/entities/review";
+import type { User } from "@/entities/user";
+import type { Order } from "@/entities/order";
+import type { Review } from "@/entities/review";
 
-const profile = {
-  fullName: 'Umed Karimov',
-  username: '@umed',
-  role: 'Покупатель',
-  email: 'umed@gmail.com',
-  phone: '+992 90 123 45 67',
-  city: 'Душанбе, Таджикистан',
-  address: 'ул. Шарифджона Хусейнзаде, 22, район Шохмансур',
-  joinedAt: '12 февраля 2025',
-  verified: true,
-  bonusPoints: 245,
+/* ─────────────────────────────────────────────────────
+   STATUS CONFIG — разделены bg и text для чистоты
+───────────────────────────────────────────────────── */
+type StatusCfg = {
+  label: string;
+  bg: string;
+  text: string;
+  icon: React.ElementType;
 };
 
-const stats = [
-  { label: 'Заказы', value: '28', icon: ShoppingBag },
-  { label: 'В избранном', value: '16', icon: Heart },
-  { label: 'Отзывы', value: '9', icon: Star },
-  { label: 'Бонусы', value: '245', icon: CreditCard },
-];
+// В начале файла, рядом с STATUS_CFG
+const STATUS_MAP: Record<number, string> = {
+  0: "Pending",
+  1: "Processing",
+  2: "Shipped",
+  3: "Delivered",
+  4: "Cancelled",
+};
 
-const recentOrders = [
-  {
-    id: '#1024',
-    title: 'Заказ из Umed Market',
-    status: 'Доставлен',
-    amount: '128 c.',
-    date: 'Сегодня, 14:20',
+const STATUS_CFG: Record<string, StatusCfg> = {
+  Pending: {
+    label: "Ожидание",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+    text: "text-amber-600",
+    icon: Clock,
   },
-  {
-    id: '#1021',
-    title: 'Заказ из Меваи Тару Тоза',
-    status: 'В пути',
-    amount: '86 c.',
-    date: 'Вчера, 18:40',
+  Processing: {
+    label: "В обработке",
+    bg: "bg-blue-50 dark:bg-blue-500/10",
+    text: "text-blue-600",
+    icon: Package,
   },
-  {
-    id: '#1018',
-    title: 'Заказ из Сабзавот Душанбе',
-    status: 'Доставлен',
-    amount: '154 c.',
-    date: '26 марта, 11:10',
+  Shipped: {
+    label: "Доставляется",
+    bg: "bg-indigo-50 dark:bg-indigo-500/10",
+    text: "text-indigo-600",
+    icon: Truck,
   },
-];
+  Delivered: {
+    label: "Доставлено",
+    bg: "bg-green-50 dark:bg-green-500/10",
+    text: "text-green-600",
+    icon: CheckCircle,
+  },
+  Cancelled: {
+    label: "Отменён",
+    bg: "bg-red-50 dark:bg-red-500/10",
+    text: "text-red-500",
+    icon: XCircle,
+  },
+};
 
-const accountLinks = [
-  { label: 'Личные данные', icon: User2 },
-  { label: 'Адреса доставки', icon: MapPin },
-  { label: 'Способы оплаты', icon: CreditCard },
-  { label: 'Безопасность', icon: Shield },
-  { label: 'Настройки аккаунта', icon: Settings },
-];
+function getStatus(status: number | string): StatusCfg {
+  const key = typeof status === "number" ? STATUS_MAP[status] : status;
+  return STATUS_CFG[key] ?? STATUS_CFG["Pending"];
+}
 
-function StatCard({
-  label,
-  value,
-  icon: Icon,
+/* ─────────────────────────────────────────────────────
+   STAR ROW
+───────────────────────────────────────────────────── */
+function Stars({
+  rating,
+  size = "sm",
 }: {
-  label: string;
-  value: string;
-  icon: React.ElementType;
+  rating: number;
+  size?: "sm" | "md";
 }) {
+  const cls = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
   return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition hover:border-slate-300 hover:shadow-[0_8px_30px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
-      <div className="flex items-center justify-between">
-        <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-          <Icon className="h-5 w-5" />
-        </div>
-        <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-          Активно
-        </span>
-      </div>
-      <div className="mt-6">
-        <p className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-          {value}
-        </p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {label}
-        </p>
-      </div>
+    <div className="flex">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={[
+            cls,
+            i < rating
+              ? "fill-amber-400 text-amber-400"
+              : "text-black/10 dark:text-white/10",
+          ].join(" ")}
+        />
+      ))}
     </div>
   );
 }
 
-function InfoItem({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <div className="mt-0.5 text-slate-500 dark:text-slate-400">{icon}</div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500">
-          {label}
-        </p>
-        <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
+const TABS = ["Обзор", "Заказы", "Отзывы"] as const;
+type Tab = (typeof TABS)[number];
 
-function StatusBadge({ status }: { status: string }) {
-  const delivered = status === 'Доставлен';
-
-  return (
-    <span
-      className={[
-        'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
-        delivered
-          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-900'
-          : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-900',
-      ].join(' ')}
-    >
-      {status}
-    </span>
-  );
-}
-
+/* ─────────────────────────────────────────────────────
+   PAGE
+───────────────────────────────────────────────────── */
 export default function ProfilePage() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { t } = useTranslation();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<Tab>("Обзор");
+
+  useEffect(() => {
+    Promise.all([
+      userService.getMe(),
+      orderService.getMy(),
+      reviewService.getAll(),
+    ])
+      .then(([u, o, r]) => {
+        setUser(u);
+        setOrders(
+          Array.isArray(o) ? o : ((o as { items?: Order[] })?.items ?? []),
+        );
+        setReviews(
+          Array.isArray(r) ? r : ((r as { items?: Review[] })?.items ?? []),
+        );
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#f8f7f4] dark:bg-[#0f0f0f]">
+        <div className="mx-auto max-w-5xl px-6 py-10 space-y-6">
+          <div className="flex gap-6 items-end">
+            <Skeleton className="h-24 w-24 rounded-2xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+
+  /* stats */
+  const delivered = orders.filter(
+    (o) =>
+      (typeof o.status === "number" ? STATUS_MAP[o.status] : o.status) ===
+      "Delivered",
+  ).length;
+  const avgRating = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : "—";
+
+  /* user display fields — используем реальные поля */
+  const avatarSrc = user?.profilePhotoUrl ?? null;
+  const displayName = user?.userName ?? "Пользователь";
+
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-          <section className="space-y-6">
-            <div className="overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900">
-              <div className="relative border-b border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.10),transparent_30%),radial-gradient(circle_at_right,rgba(15,23,42,0.06),transparent_28%),linear-gradient(to_bottom,#ffffff,#f8fafc)] px-6 py-8 dark:border-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_30%),radial-gradient(circle_at_right,rgba(255,255,255,0.04),transparent_28%),linear-gradient(to_bottom,#0f172a,#020617)] sm:px-8 sm:py-10">
-                <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] [background-size:24px_24px]" />
-                <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                  <div className="flex items-start gap-4 sm:gap-5">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[28px] bg-slate-900 text-2xl font-semibold text-white shadow-lg dark:bg-white dark:text-slate-900">
-                      U
-                    </div>
+    <div className="min-h-screen bg-[#f8f7f4] dark:bg-[#0f0f0f]">
+      {/* ══ HEADER ══ */}
+      <div className="bg-white dark:bg-[#141414] border-b border-black/[0.06] dark:border-white/[0.06]">
+        <div className="mx-auto max-w-5xl px-6 py-10">
+          {/* top row */}
+          <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+            {/* avatar */}
+            <div className="relative shrink-0">
+              <div className="h-24 w-24 rounded-2xl overflow-hidden bg-primary-100 dark:bg-primary-500/10 ring-2 ring-white dark:ring-[#141414] flex items-center justify-center text-3xl font-bold text-primary-600 dark:text-primary-400">
+                {avatarSrc ? (
+                  <Image
+                    src={avatarSrc}
+                    alt={displayName}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  displayName.charAt(0).toUpperCase()
+                )}
+              </div>
+              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-green-500 border-2 border-white dark:border-[#141414]" />
+            </div>
 
-                    <div className="pt-1">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h1 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                          {profile.fullName}
-                        </h1>
+            {/* info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-[#1a1a1a] dark:text-white">
+                  {displayName}
+                </h1>
+              </div>
+              <p className="mt-1 text-sm text-black/45 dark:text-white/45">
+                {user?.email}
+              </p>
+              {user?.phoneNumber && (
+                <p className="mt-1.5 flex items-center gap-1 text-sm text-black/45 dark:text-white/45">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {user.phoneNumber}
+                </p>
+              )}
+            </div>
 
-                        {profile.verified && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-900">
-                            <BadgeCheck className="h-3.5 w-3.5" />
-                            Верифицирован
-                          </span>
-                        )}
-                      </div>
+            {/* edit btn */}
+            <Link href="/settings">
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-4 py-2.5 text-sm font-medium text-[#1a1a1a] dark:text-white hover:bg-[#f0efeb] dark:hover:bg-[#242424] transition-colors"
+              >
+                <Edit3 className="h-4 w-4" /> Редактировать
+              </button>
+            </Link>
+          </div>
 
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                        {profile.username} · {profile.role}
-                      </p>
-
-                      <div className="mt-5 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                          Надёжный клиент
-                        </span>
-                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                          Душанбе
-                        </span>
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400">
-                          {profile.bonusPoints} бонусов
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                      Редактировать профиль
-                    </button>
-                    <button className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
-                      Управление аккаунтом
-                    </button>
-                  </div>
+          {/* stat cards */}
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              {
+                label: "Всего заказов",
+                value: orders.length,
+                icon: ShoppingBag,
+              },
+              { label: "Доставлено", value: delivered, icon: CheckCircle },
+              { label: "Отзывов", value: reviews.length, icon: MessageSquare },
+              { label: "Ср. оценка", value: avgRating, icon: Star },
+            ].map(({ label, value, icon: Icon }) => (
+              <div
+                key={label}
+                className="rounded-xl bg-[#f8f7f4] dark:bg-[#1c1c1c] p-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon className="h-4 w-4 text-primary-500" />
+                  <span className="text-xs text-black/40 dark:text-white/40 font-medium">
+                    {label}
+                  </span>
                 </div>
+                <p className="text-2xl font-bold text-[#1a1a1a] dark:text-white tabular-nums">
+                  {value}
+                </p>
               </div>
+            ))}
+          </div>
 
-              <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
-                <InfoItem
-                  label="Email"
-                  value={profile.email}
-                  icon={<Mail className="h-4 w-4" />}
-                />
-                <InfoItem
-                  label="Телефон"
-                  value={profile.phone}
-                  icon={<Phone className="h-4 w-4" />}
-                />
-                <InfoItem
-                  label="Город"
-                  value={profile.city}
-                  icon={<MapPin className="h-4 w-4" />}
-                />
-                <InfoItem
-                  label="Дата регистрации"
-                  value={profile.joinedAt}
-                  icon={<CalendarDays className="h-4 w-4" />}
-                />
-              </div>
-            </div>
+          {/* tabs */}
+          <div className="mt-6 flex gap-1 border-b border-black/[0.06] dark:border-white/[0.06]">
+            {TABS.map((tabItem) => (
+              <button
+                key={tabItem}
+                type="button"
+                onClick={() => setTab(tabItem)}
+                className={[
+                  "relative px-4 py-2.5 text-sm font-medium transition-colors",
+                  tab === tabItem
+                    ? "text-[#1a1a1a] dark:text-white"
+                    : "text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70",
+                ].join(" ")}
+              >
+                {tabItem}
+                {tab === tabItem && (
+                  <motion.div
+                    layoutId="profile-tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 rounded-full"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {stats.map((item) => (
-                <StatCard
-                  key={item.label}
-                  label={item.label}
-                  value={item.value}
-                  icon={item.icon}
-                />
-              ))}
-            </div>
-
-            <div className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+      {/* ══ CONTENT ══ */}
+      <div className="mx-auto max-w-5xl px-6 py-8">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* ── OVERVIEW ── */}
+          {tab === "Обзор" && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* orders mini */}
+              <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-[#1a1a1a] dark:text-white">
                     Последние заказы
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Актуальная история покупок и текущих доставок
-                  </p>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setTab("Заказы")}
+                    className="text-xs text-primary-500 flex items-center gap-0.5"
+                  >
+                    Все <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-
-                <button className="hidden text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white sm:inline-flex">
-                  Смотреть все
-                </button>
+                <div className="space-y-3">
+                  {orders.slice(0, 3).length === 0 && (
+                    <p className="text-sm text-black/40 dark:text-white/40 text-center py-4">
+                      Нет заказов
+                    </p>
+                  )}
+                  {orders.slice(0, 3).map((order) => {
+                    const cfg = getStatus(order.status);
+                    const Icon = cfg.icon;
+                    return (
+                      <div key={order.id} className="flex items-center gap-3">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cfg.bg}`}
+                        >
+                          <Icon className={`h-4 w-4 ${cfg.text}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[#1a1a1a] dark:text-white truncate">
+                            Заказ #{order.id}
+                          </p>
+                          <p className="text-xs text-black/40 dark:text-white/40">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "ru-RU",
+                            )}
+                          </p>
+                        </div>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}
+                        >
+                          {cfg.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800">
-                {recentOrders.map((order) => (
+              {/* reviews mini */}
+              <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-[#1a1a1a] dark:text-white">
+                    Мои отзывы
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setTab("Отзывы")}
+                    className="text-xs text-primary-500 flex items-center gap-0.5"
+                  >
+                    Все <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {reviews.slice(0, 3).length === 0 && (
+                    <p className="text-sm text-black/40 dark:text-white/40 text-center py-4">
+                      Нет отзывов
+                    </p>
+                  )}
+                  {reviews.slice(0, 3).map((review) => (
+                    <div
+                      key={review.id}
+                      className="border-b border-black/[0.05] dark:border-white/[0.05] pb-3 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Stars rating={review.rating} />
+                        <span className="text-xs text-black/35 dark:text-white/35">
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "ru-RU",
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[#1a1a1a] dark:text-white line-clamp-2">
+                        {review.comment}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── ORDERS ── */}
+          {tab === "Заказы" && (
+            <div className="space-y-3">
+              {orders.length === 0 && (
+                <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-12 text-center">
+                  <ShoppingBag className="mx-auto h-10 w-10 text-black/15 dark:text-white/15 mb-3" />
+                  <p className="text-sm text-black/40 dark:text-white/40">
+                    Заказов пока нет
+                  </p>
+                  <Link href="/catalog">
+                    <button
+                      type="button"
+                      className="mt-4 text-sm text-primary-500 font-medium"
+                    >
+                      Перейти в каталог
+                    </button>
+                  </Link>
+                </div>
+              )}
+              {orders.map((order) => {
+                const cfg = getStatus(order.status);
+                const Icon = cfg.icon;
+                return (
                   <div
                     key={order.id}
-                    className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between"
+                    className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-5 flex items-center gap-4"
                   >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {order.id}
-                        </p>
-                        <StatusBadge status={order.status} />
-                      </div>
-
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                        {order.title}
-                      </p>
-
-                      <div className="mt-2 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
-                        <Clock3 className="h-3.5 w-3.5" />
-                        {order.date}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4 sm:justify-end">
-                      <div className="text-left sm:text-right">
-                        <p className="text-base font-semibold text-slate-950 dark:text-white">
-                          {order.amount}
-                        </p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500">
-                          Сумма заказа
-                        </p>
-                      </div>
-
-                      <button className="inline-flex h-10 items-center rounded-xl border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
-                        Подробнее
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <aside className="space-y-6">
-            <div className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-              <h2 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                Основной адрес
-              </h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Адрес по умолчанию для доставки
-              </p>
-
-              <div className="mt-6 rounded-[28px] border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/40">
-                <div className="flex items-start gap-4">
-                  <div className="rounded-2xl bg-white p-3 text-slate-900 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:text-white dark:ring-slate-800">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      Душанбе
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {profile.address}
-                    </p>
-                    <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-                      Используется для быстрого оформления заказа
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <button className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                Изменить адрес
-              </button>
-            </div>
-
-            <div className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-              <h2 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                Аккаунт
-              </h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Быстрый доступ к разделам профиля
-              </p>
-
-              <div className="mt-6 space-y-2">
-                {accountLinks.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <button
-                      key={item.label}
-                      className="flex w-full items-center justify-between rounded-2xl border border-transparent px-4 py-3 text-left transition hover:border-slate-200 hover:bg-slate-50 dark:hover:border-slate-800 dark:hover:bg-slate-950/40"
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cfg.bg}`}
                     >
-                      <span className="flex items-center gap-3">
-                        <span className="text-slate-500 dark:text-slate-400">
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                          {item.label}
-                        </span>
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-slate-400" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-              <h2 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                Состояние аккаунта
-              </h2>
-
-              <div className="mt-6 space-y-4">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        <BadgeCheck className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-900 dark:text-white">
-                          Профиль подтверждён
+                      <Icon className={`h-5 w-5 ${cfg.text}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-[#1a1a1a] dark:text-white">
+                          Заказ #{order.id}
                         </p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500">
-                          Аккаунт активен и защищён
-                        </p>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}
+                        >
+                          {cfg.label}
+                        </span>
                       </div>
+                      <p className="text-sm text-black/40 dark:text-white/40 mt-0.5">
+                        {new Date(order.createdAt).toLocaleDateString("ru-RU", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-[#1a1a1a] dark:text-white tabular-nums">
+                        {order.totalAmount} TJS
+                      </p>
+                      <Link href={`/orders/${order.id}`}>
+                        <button
+                          type="button"
+                          className="mt-1 flex items-center gap-0.5 text-xs text-primary-500"
+                        >
+                          Детали <ArrowUpRight className="h-3 w-3" />
+                        </button>
+                      </Link>
                     </div>
                   </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-sky-50 p-2 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
-                      <Package className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
-                        3 активных заказа
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">
-                        1 в пути, 2 собираются
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-amber-50 p-2 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
-                      <Truck className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
-                        Быстрая доставка доступна
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">
-                        Для вашего адреса в Душанбе
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          </aside>
-        </div>
+          )}
+
+          {/* ── REVIEWS ── */}
+          {tab === "Отзывы" && (
+            <div className="space-y-3">
+              {reviews.length === 0 && (
+                <div className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-12 text-center">
+                  <Star className="mx-auto h-10 w-10 text-black/15 dark:text-white/15 mb-3" />
+                  <p className="text-sm text-black/40 dark:text-white/40">
+                    Вы ещё не оставляли отзывов
+                  </p>
+                </div>
+              )}
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="rounded-2xl bg-white dark:bg-[#141414] border border-black/[0.06] dark:border-white/[0.06] p-5"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+                      <Star className="h-5 w-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <Stars rating={review.rating} size="md" />
+                        <span className="text-xs text-black/35 dark:text-white/35">
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "ru-RU",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )}
+                        </span>
+                        {/* автор отзыва */}
+                        <span className="text-xs font-medium text-black/40 dark:text-white/40">
+                          {review.userName}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-[#1a1a1a] dark:text-white leading-relaxed">
+                        {review.comment}
+                      </p>
+                      {/* ссылка на товар — только по productId, без productName */}
+                      <Link href={`/catalog/${review.productId}`}>
+                        <p className="mt-2 text-xs text-primary-500 font-medium flex items-center gap-0.5 hover:underline">
+                          Перейти к товару <ArrowUpRight className="h-3 w-3" />
+                        </p>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
-    </main>
+    </div>
   );
 }
