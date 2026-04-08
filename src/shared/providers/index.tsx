@@ -10,7 +10,7 @@ import { I18nProvider } from '@/features/i18n';
 
 function AuthHydrator({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
-  const { token, isAuthenticated, user } = useAppSelector((s) => s.auth);
+  const { token, isAuthenticated, user } = useAppSelector((s: any) => s.auth);
 
   useEffect(() => {
     if (token && !isAuthenticated && !user) {

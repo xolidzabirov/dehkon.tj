@@ -18,13 +18,13 @@ interface I18nContextType {
 }
 
 const I18nContext = createContext<I18nContextType>({
-  locale: 'ru',
-  t: ru,
+  locale: 'tj',
+  t: tj,
   setLocale: () => {},
 });
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('ru');
+  const [localeState, setLocaleState] = useState<Locale>('tj');
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
@@ -39,7 +39,11 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <I18nContext.Provider value={{ locale, t: locales[locale], setLocale }}>
+    <I18nContext.Provider value={{ 
+      locale: localeState, 
+      t: locales[localeState], 
+      setLocale 
+      }}>
       {children}
     </I18nContext.Provider>
   );

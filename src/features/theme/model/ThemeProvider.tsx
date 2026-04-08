@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-const STORAGE_KEY = 'dehkon_theme';
+const STORAGE_KEY = 'dehqon_theme';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
